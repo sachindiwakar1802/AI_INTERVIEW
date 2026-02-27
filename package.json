@@ -1,0 +1,10 @@
+{
+  "name": "ai_interview",
+  "scripts": {
+    "start": "concurrently \"npm --prefix BACKEND start\" \"npm --prefix FRONTEND/frontend run preview\"",
+    "build": "npm --prefix FRONTEND/frontend run build"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
