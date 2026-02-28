@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from "motion/react";
 import { FaUserTie, FaBriefcase, FaFileUpload, FaMicrophoneAlt, FaChartLine } from "react-icons/fa";
 import axios from "axios";
@@ -22,24 +22,36 @@ function Step1SetUp({ onStart }) {
     const [analyzing, setAnalyzing] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
+    // Load token from localStorage on mount
+    useEffect(() => {
+        const savedUser = localStorage.getItem("userData");
+        if (savedUser && !userData) {
+            dispatch(setUserData(JSON.parse(savedUser)));
+        }
+    }, [dispatch, userData]);
+
+    // Upload Resume and analyze
     const handleUploadResume = async () => {
         if (!resumeFile || analyzing) return;
 
-        console.log("Token:", userData?.token);
-        
+        if (!userData?.token) {
+            setErrorMessage("Please login first.");
+            return;
+        }
+
         setAnalyzing(true);
         setErrorMessage("");
 
-        const formdata = new FormData();
-        formdata.append("resume", resumeFile);
+        const formData = new FormData();
+        formData.append("resume", resumeFile);
 
         try {
             const result = await axios.post(
-                ServerUrl + "/api/interview/resume",
-                formdata,
+                `${ServerUrl}/api/interview/resume`,
+                formData,
                 {
                     headers: {
-                        Authorization: `Bearer ${userData?.token}` // JWT header
+                        Authorization: `Bearer ${userData.token}`
                     }
                 }
             );
@@ -58,23 +70,32 @@ function Step1SetUp({ onStart }) {
         }
     };
 
+    // Start Interview and generate questions
     const handleStart = async () => {
+        if (!userData?.token) {
+            setErrorMessage("Please login first.");
+            return;
+        }
+
         setLoading(true);
         setErrorMessage("");
 
         try {
             const result = await axios.post(
-                ServerUrl + "/api/interview/generate-questions",
+                `${ServerUrl}/api/interview/generate-questions`,
                 { role, experience, mode, resumeText, projects, skills },
                 {
                     headers: {
-                        Authorization: `Bearer ${userData?.token}` // JWT header
+                        Authorization: `Bearer ${userData.token}`
                     }
                 }
             );
 
+            // Update credits in Redux + localStorage
             if (userData) {
-                dispatch(setUserData({ ...userData, credits: result.data.creditsLeft }));
+                const updatedUser = { ...userData, credits: result.data.creditsLeft };
+                dispatch(setUserData(updatedUser));
+                localStorage.setItem("userData", JSON.stringify(updatedUser));
             }
 
             onStart(result.data);
@@ -136,25 +157,24 @@ function Step1SetUp({ onStart }) {
                 >
                     <h2 className='text-3xl font-bold text-gray-800 mb-8'>Interview SetUp</h2>
                     <div className='space-y-6'>
-                        {/* Role Input */}
+                        {/* Role */}
                         <div className='relative'>
                             <FaUserTie className='absolute top-4 left-4 text-gray-400' />
                             <input type='text' placeholder='Enter role'
                                 className='w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none transition'
-                                onChange={(e) => setRole(e.target.value)} value={role} />
+                                value={role} onChange={(e) => setRole(e.target.value)} />
                         </div>
 
-                        {/* Experience Input */}
+                        {/* Experience */}
                         <div className='relative'>
                             <FaBriefcase className='absolute top-4 left-4 text-gray-400' />
                             <input type='text' placeholder='Experience (e.g. 2 years)'
                                 className='w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none transition'
-                                onChange={(e) => setExperience(e.target.value)} value={experience} />
+                                value={experience} onChange={(e) => setExperience(e.target.value)} />
                         </div>
 
-                        {/* Mode Select */}
-                        <select value={mode}
-                            onChange={(e) => setMode(e.target.value)}
+                        {/* Mode */}
+                        <select value={mode} onChange={(e) => setMode(e.target.value)}
                             className='w-full py-3 px-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none transition'>
                             <option value="Technical">Technical Interview</option>
                             <option value="HR">HR Interview</option>
@@ -186,11 +206,8 @@ function Step1SetUp({ onStart }) {
 
                         {/* Resume Analysis Result */}
                         {analysisDone && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className='bg-gray-50 border border-gray-200 rounded-xl p-5 space-y-4'
-                            >
+                            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                                className='bg-gray-50 border border-gray-200 rounded-xl p-5 space-y-4'>
                                 <h3 className='text-lg font-semibold text-gray-800'>Resume Analysis Result</h3>
                                 {projects.length > 0 && (
                                     <div>
@@ -214,9 +231,7 @@ function Step1SetUp({ onStart }) {
                         )}
 
                         {/* Error Message */}
-                        {errorMessage && (
-                            <p className='text-red-600 font-medium'>{errorMessage}</p>
-                        )}
+                        {errorMessage && <p className='text-red-600 font-medium'>{errorMessage}</p>}
 
                         {/* Start Button */}
                         <motion.button
@@ -232,7 +247,7 @@ function Step1SetUp({ onStart }) {
                 </motion.div>
             </div>
         </motion.div>
-    );
+    )
 }
 
 export default Step1SetUp;
