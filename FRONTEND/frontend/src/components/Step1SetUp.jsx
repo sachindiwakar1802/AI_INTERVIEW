@@ -32,7 +32,15 @@ function Step1SetUp({ onStart }) {
         formdata.append("resume", resumeFile);
 
         try {
-            const result = await axios.post(ServerUrl + "/api/interview/resume", formdata, { withCredentials: true });
+            const result = await axios.post(
+                ServerUrl + "/api/interview/resume",
+                formdata,
+                {
+                    headers: {
+                        Authorization: `Bearer ${userData?.token}` // <-- Added JWT header
+                    }
+                }
+            );
             console.log(result.data);
 
             setRole(result.data.role || "");
@@ -54,9 +62,14 @@ function Step1SetUp({ onStart }) {
         setErrorMessage("");
 
         try {
-            const result = await axios.post(ServerUrl + "/api/interview/generate-questions", 
-                { role, experience, mode, resumeText, projects, skills }, 
-                { withCredentials: true }
+            const result = await axios.post(
+                ServerUrl + "/api/interview/generate-questions",
+                { role, experience, mode, resumeText, projects, skills },
+                {
+                    headers: {
+                        Authorization: `Bearer ${userData?.token}` // <-- Added JWT header
+                    }
+                }
             );
 
             console.log(result.data);
