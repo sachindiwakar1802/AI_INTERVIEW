@@ -37,11 +37,10 @@ function Step1SetUp({ onStart }) {
                 formdata,
                 {
                     headers: {
-                        Authorization: `Bearer ${userData?.token}` // <-- Added JWT header
+                        Authorization: `Bearer ${userData?.token}` // JWT header
                     }
                 }
             );
-            console.log(result.data);
 
             setRole(result.data.role || "");
             setExperience(result.data.experience || "");
@@ -67,12 +66,10 @@ function Step1SetUp({ onStart }) {
                 { role, experience, mode, resumeText, projects, skills },
                 {
                     headers: {
-                        Authorization: `Bearer ${userData?.token}` // <-- Added JWT header
+                        Authorization: `Bearer ${userData?.token}` // JWT header
                     }
                 }
             );
-
-            console.log(result.data);
 
             if (userData) {
                 dispatch(setUserData({ ...userData, credits: result.data.creditsLeft }));
@@ -95,7 +92,6 @@ function Step1SetUp({ onStart }) {
             className='min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 px-4'
         >
             <div className='w-full max-w-6xl bg-white rounded-3xl shadow-2xl grid md:grid-cols-2 overflow-hidden'>
-
                 {/* Left Info Panel */}
                 <motion.div
                     initial={{ x: -80, opacity: 0 }}
@@ -106,11 +102,9 @@ function Step1SetUp({ onStart }) {
                     <h2 className="text-4xl font-bold text-gray-800 mb-6">
                         Start Your AI Interview
                     </h2>
-
                     <p className="text-gray-600 mb-10">
                         Practice real interview scenarios powered by AI. Improve communication, technical skills, and confidence.
                     </p>
-
                     <div className='space-y-5'>
                         {[
                             { icon: <FaUserTie className="text-green-600 text-xl" />, text: "Choose Role & Experience" },
@@ -139,9 +133,7 @@ function Step1SetUp({ onStart }) {
                     className="p-12 bg-white"
                 >
                     <h2 className='text-3xl font-bold text-gray-800 mb-8'>Interview SetUp</h2>
-
                     <div className='space-y-6'>
-
                         {/* Role Input */}
                         <div className='relative'>
                             <FaUserTie className='absolute top-4 left-4 text-gray-400' />
@@ -198,7 +190,6 @@ function Step1SetUp({ onStart }) {
                                 className='bg-gray-50 border border-gray-200 rounded-xl p-5 space-y-4'
                             >
                                 <h3 className='text-lg font-semibold text-gray-800'>Resume Analysis Result</h3>
-
                                 {projects.length > 0 && (
                                     <div>
                                         <p className='font-medium text-gray-700 mb-1'>Projects:</p>
@@ -207,7 +198,6 @@ function Step1SetUp({ onStart }) {
                                         </ul>
                                     </div>
                                 )}
-
                                 {skills.length > 0 && (
                                     <div>
                                         <p className='font-medium text-gray-700 mb-1'>Skills:</p>
@@ -236,10 +226,8 @@ function Step1SetUp({ onStart }) {
                         >
                             {loading ? "Starting..." : "Start Interview"}
                         </motion.button>
-
                     </div>
                 </motion.div>
-
             </div>
         </motion.div>
     );
