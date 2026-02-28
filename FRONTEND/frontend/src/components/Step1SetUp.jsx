@@ -25,6 +25,8 @@ function Step1SetUp({ onStart }) {
     const handleUploadResume = async () => {
         if (!resumeFile || analyzing) return;
 
+        console.log("Token:", userData?.token);
+        
         setAnalyzing(true);
         setErrorMessage("");
 
