@@ -17,8 +17,11 @@ const app = express();
 
 // 2️⃣ Middleware
 app.use(cors({
-    origin: ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"],
-    credentials: true, // must be true to send cookies
+  origin: [
+    "http://localhost:5173",
+    "https://wesehi.onrender.com"
+  ],
+  credentials: true
 }));
 app.use(express.json());
 app.use(cookieParser());
