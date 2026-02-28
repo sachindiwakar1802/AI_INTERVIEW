@@ -1,10 +1,17 @@
 import genToken from "../config/token.js";
 import User from "../models/user.model.js";
 
-// Google Auth
+// ======================
+// Google Authentication
+// ======================
 export const googleAuth = async (req, res) => {
   try {
     const { name, email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
     let user = await User.findOne({ email });
 
     if (!user) {
@@ -13,31 +20,43 @@ export const googleAuth = async (req, res) => {
 
     const token = genToken(user._id);
 
-    // Set cookie properly for dev
+    // ✅ IMPORTANT FOR RENDER (cross-domain cookie)
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true,   // false for localhost
-      sameSite: "none", // works in localhost
+      secure: true,
+      sameSite: "None",   // MUST be capital N
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     return res.status(200).json(user);
+
   } catch (error) {
-    return res.status(500).json({ message: `Google auth error: ${error.message}` });
+    return res.status(500).json({
+      message: "Google authentication failed",
+      error: error.message
+    });
   }
 };
 
+
+// ======================
 // Logout
+// ======================
 export const logOut = async (req, res) => {
   try {
     res.cookie("token", "", {
       httpOnly: true,
       secure: true,
-      sameSite: "none",
-      maxAge: 0, // clear cookie
+      sameSite: "None",
+      maxAge: 0
     });
+
     return res.status(200).json({ message: "Logged out successfully" });
+
   } catch (error) {
-    return res.status(500).json({ message: `Logout error: ${error.message}` });
+    return res.status(500).json({
+      message: "Logout failed",
+      error: error.message
+    });
   }
 };
