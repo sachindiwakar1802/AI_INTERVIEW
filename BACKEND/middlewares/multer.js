@@ -1,15 +1,7 @@
 import multer from "multer";
 
-const storage = multer.diskStorage({
-    destination: function(req, file , cb){
-        cb(null , "public")
-    },
-    filename: function(req , file , cb){
-        const filename = Date.now() + "-" + file.originalname;
-        cb(null , filename)
-    }
-})
-
+// Use memoryStorage instead of writing to disk
+const storage = multer.memoryStorage();
 
 export const upload = multer({
     storage,
