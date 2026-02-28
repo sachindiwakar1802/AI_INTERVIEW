@@ -18,7 +18,7 @@ const app = express();
 // 2️⃣ Middleware
 app.use(cors({
   origin: [
-    "http://localhost:5173",
+    "http:https://wesehi.onrender.com",
     "https://wesehi.onrender.com"
   ],
   credentials: true
