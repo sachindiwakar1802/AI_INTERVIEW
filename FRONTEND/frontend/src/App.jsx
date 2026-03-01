@@ -11,7 +11,8 @@ import InterviewHistory from './pages/InterviewHistory'
 import Pricing from './pages/Pricing'
 import InterviewReport from './pages/InterviewReport'
 
-export const ServerUrl  = "https://ai-interview8383.onrender.com"
+// Production-ready ServerUrl - works in both dev and production
+export const ServerUrl = import.meta.env.VITE_SERVER_URL || "https://ai-interview8383.onrender.com"
 
 function App() {
 
@@ -37,9 +38,6 @@ function App() {
       <Route path='/history' element={<InterviewHistory/>}/>
       <Route path='/pricing' element={<Pricing/>}/>
       <Route path='/report/:id' element={<InterviewReport/>}/>
-
-
-
     </Routes>
   )
 }

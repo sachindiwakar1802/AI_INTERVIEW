@@ -13,15 +13,16 @@ export const googleAuth = async (req, res) => {
 
     const token = genToken(user._id);
 
-    // Set cookie properly for dev
+    // Set cookie
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true,   // false for localhost
-      sameSite: "none", // works in localhost
+      secure: false,   // false for localhost
+      sameSite: "lax", // works in localhost
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    return res.status(200).json(user);
+    // Send token in response as well
+    return res.status(200).json({ user, token });
   } catch (error) {
     return res.status(500).json({ message: `Google auth error: ${error.message}` });
   }
