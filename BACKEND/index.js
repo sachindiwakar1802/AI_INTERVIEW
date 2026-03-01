@@ -14,11 +14,10 @@ dotenv.config();
 
 const app = express();
 
-// CORS configuration for production
+// CORS configuration
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://wesehi.onrender.com",
-  "https://ai-interview8383.onrender.com"
+  "https://wesehi.onrender.com"
 ];
 
 app.use(cors({
@@ -33,13 +32,12 @@ app.use(cors({
     return callback(null, true);
   },
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "Cookie", "X-Requested-With"],
-  exposedHeaders: ["set-cookie"]
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization", "Cookie"]
 }));
 
-// Handle preflight requests
-app.options('*', cors());
+// ✅ FIXED: Remove the problematic app.options('*') line completely
+// Express will handle OPTIONS requests automatically with cors()
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));

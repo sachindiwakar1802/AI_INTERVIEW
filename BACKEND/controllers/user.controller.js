@@ -1,36 +1,93 @@
 import User from "../models/user.model.js";
-// Get currently logged-in user
+
+// @desc    Get current user
+// @route   GET /api/user/current-user
 export const getCurrentUser = async (req, res) => {
   try {
-    // 🔹 userId comes from isAuth middleware
-    // (It was extracted from the verified JWT token)
-    const userId = req.userId
-
-    // 🔹 Find user in MongoDB using the ID
-    // .select("-password") removes password field from response
-    const user = await User.findById(userId).select("-password")
-
-    // 🔹 If no user found in database
-    if (!user) {
-      return res.status(404).json({ message: "User not found" })
+    // req.userId comes from isAuth middleware
+    const userId = req.userId;
+    
+    if (!userId) {
+      console.log("❌ No userId in request");
+      return res.status(401).json({ message: "Not authenticated" });
     }
 
-    // 🔹 If user exists, send user data to frontend
-    return res.status(200).json(user)
+    console.log("🔍 Finding user with ID:", userId);
+    
+    const user = await User.findById(userId).select("-password"); // Exclude password
+    
+    if (!user) {
+      console.log("❌ User not found for ID:", userId);
+      return res.status(404).json({ message: "User not found" });
+    }
 
+    console.log("✅ User found:", user.email);
+    
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      credits: user.credits || 0,
+      profilePic: user.profilePic || null,
+      createdAt: user.createdAt
+    });
+    
   } catch (error) {
-    // 🔹 If something goes wrong (server/database error)
-    return res.status(500).json({
-      message: "Failed to get current user. Try again.",
-      error: error.message
-    })
+    console.error("❌ Error in getCurrentUser:", error);
+    res.status(500).json({ message: "Server error" });
   }
-}
+};
 
-/*
-summary of the code
-Frontend → sends request
-Middleware → verifies token
-Controller → finds user in DB
-Response → sends user data
-*/
+// @desc    Update user credits
+// @route   PUT /api/user/update-credits
+export const updateCredits = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { credits } = req.body;
+    
+    if (!userId) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { credits },
+      { new: true }
+    ).select("-password");
+    
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      credits: user.credits
+    });
+    
+  } catch (error) {
+    console.error("❌ Error updating credits:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// @desc    Get user by ID
+// @route   GET /api/user/:id
+export const getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select("-password");
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      credits: user.credits,
+      profilePic: user.profilePic
+    });
+    
+  } catch (error) {
+    console.error("❌ Error getting user:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
